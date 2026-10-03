@@ -1,0 +1,15 @@
+import { readFile } from 'node:fs/promises';
+const credentials = JSON.parse(await readFile('/home/jo/.local/share/com.vercel.cli/auth.json', 'utf8'));
+const project = JSON.parse(await readFile('.vercel/project.json', 'utf8'));
+const domain = 'https://morrow-cp5.vercel.app';
+const names = ['FIREBASE_PROJECT_ID', 'FIREBASE_DATABASE_URL', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY', 'BLOB_READ_WRITE_TOKEN', 'GEMINI_API_KEY', 'GEMINI_MODEL', 'GEMINI_FALLBACK_MODEL', 'CRON_SECRET', 'EXPO_ACCESS_TOKEN', 'TURN_URLS', 'TURN_SHARED_SECRET'];
+const values = Object.fromEntries(names.filter((name) => process.env[name]).map((name) => [name, process.env[name]]));
+values.PUBLIC_API_URL = `${domain}/api`;
+values.WEB_ORIGINS = `${domain},http://localhost:8081,http://localhost:8082`;
+values.EXPO_PUBLIC_API_URL = `${domain}/api`;
+values.EXPO_PUBLIC_EAS_PROJECT_ID = '04683200-f87c-43e2-83e4-ab30b9aa077a';
+const response = await fetch(`https://api.vercel.com/v10/projects/${project.projectId}/env?upsert=true`, { method: 'POST', headers: { Authorization: `Bearer ${credentials.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(Object.entries(values).map(([key, value]) => ({ key, value, type: 'encrypted', target: ['production', 'preview'] }))) });
+if (!response.ok) throw new Error(`Vercel env provisioning failed: HTTP ${response.status}`);
+const result = await response.json();
+if (result.failed?.length) throw new Error(`Vercel rejected ${result.failed.length} environment entries.`);
+console.log(`Hosted environment configured: ${Object.keys(values).length} variables. Secret values were not logged.`);

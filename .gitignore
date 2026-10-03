@@ -6,6 +6,7 @@ node_modules/
 # Expo
 .expo/
 dist/
+dist-android/
 web-build/
 expo-env.d.ts
 
@@ -31,7 +32,23 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+*.credentials.json
+serviceAccount*.json
+firebaseAdmin*.json
+.vercel/
+server/dist/
+coverage/
+playwright-report/
+test-results/
+firebase-debug.log
+firestore-debug.log
+database-debug.log
 
 # typescript
 *.tsbuildinfo
@@ -41,3 +58,5 @@ example
 # generated native folders
 /ios
 /android
+.vercel
+.local/

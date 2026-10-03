@@ -1,42 +1,126 @@
 {
   "expo": {
-    "name": "cp5",
-    "slug": "cp5",
+    "name": "Morrow",
+    "slug": "morrow-cp5",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "cp5",
+    "icon": "./assets/brand/icon.png",
+    "scheme": "morrow",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "br.com.morrow.cp5",
+      "supportsTablet": true,
+      "icon": "./assets/brand/icon.png",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": true,
+        "NSCameraUsageDescription": "Use sua câmera em chamadas e para conferir convites e identidades.",
+        "NSMicrophoneUsageDescription": "Grave áudios e converse com sua equipe.",
+        "NSFaceIDUsageDescription": "Desbloqueie seu espaço com Face ID."
+      },
+      "bitcode": false
     },
     "android": {
+      "package": "br.com.morrow.cp5",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#111714",
+        "foregroundImage": "./assets/brand/adaptive.png",
+        "monochromeImage": "./assets/brand/notification.png"
       },
-      "predictiveBackGestureEnabled": false
+      "permissions": [
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.CAMERA",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.ACCESS_NETWORK_STATE",
+        "android.permission.INTERNET",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WAKE_LOCK",
+        "android.permission.BLUETOOTH"
+      ],
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/brand/favicon.png",
+      "name": "Morrow",
+      "description": "Conversas que viram movimento."
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#111714",
+          "image": "./assets/brand/splash.png",
+          "imageWidth": 160
         }
-      ]
+      ],
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true
+        }
+      ],
+      [
+        "expo-sqlite",
+        {
+          "useSQLCipher": true
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Grave mensagens de áudio para sua equipe.",
+          "enableBackgroundRecording": false
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Leia convites e confira identidades de dispositivos.",
+          "microphonePermission": "Converse em chamadas de voz e vídeo.",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Selecione sua foto e imagens para compartilhar.",
+          "cameraPermission": "Selecione uma imagem para o seu espaço.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Desbloqueie seu espaço com Face ID."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/brand/notification.png",
+          "color": "#DBF581",
+          "defaultChannel": "morrow-messages"
+        }
+      ],
+      "expo-sharing",
+      "@config-plugins/react-native-webrtc",
+      "expo-asset"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "owner": "beo-johnny",
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "04683200-f87c-43e2-83e4-ab30b9aa077a"
+      }
     }
   }
 }

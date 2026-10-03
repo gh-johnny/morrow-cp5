@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1091950806055",
+    "firebase_url": "https://morrow-cp5-555199-default-rtdb.firebaseio.com",
+    "project_id": "morrow-cp5-555199",
+    "storage_bucket": "morrow-cp5-555199.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1091950806055:android:bb61b431d8ecace58a3a02",
+        "android_client_info": {
+          "package_name": "br.com.morrow.cp5"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAjt8XC7YU7ssXYUsmYc1FH69pawSFh1tA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

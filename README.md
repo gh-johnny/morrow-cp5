@@ -1,56 +1,62 @@
-# Welcome to your Expo app 👋
+---
+title: Morrow — conversas que viram movimento
+status: experimental
+created: 2026-10-03
+last-updated: 2026-10-03
+last-reviewed: 2026-10-03
+---
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Morrow
 
-## Get started
+**FIAP · Mobile Development and IoT · CheckPoint 5 · 3ESPW**
 
-1. Install dependencies
+| Integrante | RM |
+| --- | --- |
+| João Marcelo Furtado Romero | RM555199 |
+| Matheus Rivera Montovaneli | RM555499 |
+| André Nakamatsu Rocha | RM555004 |
 
-   ```bash
-   npm install
-   ```
+Conversas que viram movimento. Aplicativo novo em **Expo SDK 57, React Native e TypeScript**, com chat Firebase, API própria HTTPS e dezesseis recursos adicionais. Marca original: grafite, cítrico, Manrope, Space Grotesk e o companheiro geométrico Kite.
 
-2. Start the app
+- **Aplicação:** https://morrow-cp5.vercel.app
+- **API:** https://morrow-cp5.vercel.app/api ([health](https://morrow-cp5.vercel.app/api/health))
+- **Código:** https://github.com/gh-johnny/morrow-cp5
+- **Builds:** https://expo.dev/accounts/beo-johnny/projects/morrow-cp5
+- **Enunciado:** [Chat, Firebase, grupos e push](https://github.com/anderltda/doc-react-native/blob/main/CPS/3ESPW/Segundo%20Semestre/README_TRABALHO_REACT_NATIVE_CHAT_FIREBASE_GRUPOS_PUSH.md)
 
-   ```bash
-   npx expo start
-   ```
+## Começar
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Node.js 24+ e npm:
 
 ```bash
-npm run reset-project
+npm ci
+npm --prefix server ci
+cp .env.example .env.local
+npm run web
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+O cliente usa a API publicada. `firebaseConfig.json` e `google-services.json` contêm a configuração pública real do projeto acadêmico **morrow-cp5-555199**. Credenciais administrativas ficam exclusivamente no servidor.
 
-### Other setup steps
+```bash
+npm run build:apk
+npm run build:ios
+npm run verify
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+**Use build nativo para Android/iOS:** WebRTC e SQLCipher exigem módulos que não estão no Expo Go. O perfil EAS `preview` gera APK; `simulator` gera iOS para simulador macOS.
 
-## Learn more
+## Recursos
 
-To learn more about developing your project with Expo, look at the following resources:
+Chat direto único; grupos com capacidade concorrente; menções; quatro políticas push; mídia autorizada; perfis privados. Extras: Kite com fontes, áudio pesquisável, tarefas/Kanban, enquetes/agenda, threads, memória visual, canvas Yjs, radar, atenção, preferências, observatório push, Blackout Lab, convites QR/link, foco compartilhado, chamadas WebRTC e criptografia NaCl por dispositivo.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+A arquitetura combina Firebase Auth, Firestore e RTDB com API Express/Firebase Admin na Vercel, Blob privado, Gemini e Expo Push. O nativo guarda fila e chaves com SQLCipher/SecureStore; o navegador usa IndexedDB/AES-GCM. Não usa Cloud Functions.
 
-## Join the community
+## Documentação e evidências
 
-Join our community of developers creating universal apps.
+- [Entrega técnica](docs/DELIVERY.md): requisitos, matriz dos 16 extras, políticas, configuração, segurança, testes e limitações.
+- [Escopo aceito e critérios](docs/IMPLEMENTATION.md).
+- [Evidências](docs/evidence): interface e integrações reais.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+A API pública passou no teste com Auth real, concorrência, autorização, idempotência, colaboração e IA. Os testes de navegador verificam offline/reabertura, colaboração, criptografia e WebRTC real. O APK Android compilou; a validação nativa de push está em andamento. Push iOS será configurado posteriormente, conforme disponibilidade de Apple Developer/iPhone. TURN está implementado como configuração opcional e ainda não provisionado no ambiente público.
+
+Para contribuir: leia a entrega técnica, mantenha as regras e contratos tipados, execute `npm run verify` e os testes de regras antes de alterar autenticação ou autorização. Nunca versione `.env`, contas QA ou chaves administrativas.

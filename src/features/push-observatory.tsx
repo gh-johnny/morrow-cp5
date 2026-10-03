@@ -1,0 +1,12 @@
+import { useEffect } from 'react';
+import { RefreshCw } from 'lucide-react-native';
+import { z } from 'zod';
+import { notificationEventSchema, policyLabels, type Conversation } from '../../shared/contracts';
+import { useApiQuery, usePeople } from '../hooks/data';
+import { Button, Card, Chip, Copy, Row, State, Title } from '../ui/kit';
+const schema = z.array(notificationEventSchema);
+export function PushObservatory({ conversation }: { conversation: Conversation }) {
+  const query = useApiQuery(`/conversations/${conversation.id}/notifications`, schema); const people = usePeople(); const { refresh } = query;
+  useEffect(() => { const interval = setInterval(() => { void refresh(); }, 15_000); return () => clearInterval(interval); }, [refresh]);
+  return <><Card><Title size={24}>O caminho da notificação.</Title><Copy>Política: {policyLabels[conversation.notificationPolicy]}.</Copy><Copy muted>Aceitação pelo Expo confirma a solicitação. Recebimento e abertura só aparecem quando o app registra esses eventos. Um ticket nunca prova que a pessoa recebeu.</Copy><Button compact secondary icon={RefreshCw} label="Atualizar observatório" onPress={query.refresh} /></Card>{query.error ? <State error={query.error} /> : query.loading && !query.data ? <State loading /> : !query.data?.length ? <State title="Cada envio conta uma história." detail="Os eventos aparecem depois que uma mensagem persistida solicita seu push." /> : query.data.map((event) => <Card key={event.id}><Row><Chip label={event.status} /><Copy muted small>{new Date(event.createdAt).toLocaleString('pt-BR')}</Copy></Row><Title size={18}>{event.providerAccepted} aceita(s) pelo Expo</Title><Copy muted small>{event.providerConfirmed} confirmada(s) por FCM/APNs · {event.providerErrors} erro(s) de provedor · {event.providerRejected} rejeitada(s) · {event.received.length} registro(s) de recebimento · {event.opens.length} abertura(s)</Copy>{event.uncertainDeliveries ? <Copy muted small>{event.uncertainDeliveries} envio(s) com resposta inconclusiva. Não são repetidos automaticamente para evitar duplicação.</Copy> : null}<Copy muted small>Destinatários calculados: {event.recipients.map((uid) => people.byId[uid]?.name ?? 'Integrante').join(', ') || 'nenhum'}</Copy>{Object.entries(event.excluded).map(([uid, reason]) => <Copy key={uid} small>{people.byId[uid]?.name ?? 'Integrante'} → {reason}</Copy>)}{event.nextAttemptAt ? <Copy small muted>Próxima tentativa: {new Date(event.nextAttemptAt).toLocaleString('pt-BR')}</Copy> : null}</Card>)}</>;
+}

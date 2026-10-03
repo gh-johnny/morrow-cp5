@@ -1,0 +1,59 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "rooms": {
+      "$conversationId": {
+        "messages": {
+          ".read": "auth != null && auth.token.firebase.sign_in_provider == 'password' && root.child('rooms').child($conversationId).child('access').child('members').child(auth.uid).val() == true",
+          ".indexOn": ["createdAt", "threadId"],
+          ".write": false
+        },
+        "board": {
+          ".read": "auth != null && auth.token.firebase.sign_in_provider == 'password' && root.child('rooms').child($conversationId).child('access').child('members').child(auth.uid).val() == true",
+          "presence": {
+            "$uid": {
+              "$sessionId": {
+                ".write": "auth != null && auth.token.firebase.sign_in_provider == 'password' && auth.uid == $uid && root.child('rooms').child($conversationId).child('access').child('members').child(auth.uid).val() == true",
+                ".validate": "newData.hasChildren(['x','y','at']) && newData.child('x').isNumber() && newData.child('x').val() >= 0 && newData.child('x').val() <= 900 && newData.child('y').isNumber() && newData.child('y').val() >= 0 && newData.child('y').val() <= 10000 && newData.child('at').isNumber() && newData.child('at').val() <= now + 1000",
+                "$other": { ".validate": "$other == 'x' || $other == 'y' || $other == 'at'" }
+              }
+            }
+          }
+        },
+        "focus": {
+          ".read": "auth != null && auth.token.firebase.sign_in_provider == 'password' && root.child('rooms').child($conversationId).child('access').child('members').child(auth.uid).val() == true",
+          ".write": false
+        },
+        "typing": {
+          ".read": "auth != null && auth.token.firebase.sign_in_provider == 'password' && root.child('rooms').child($conversationId).child('access').child('members').child(auth.uid).val() == true",
+          "$uid": {
+            ".write": "auth != null && auth.token.firebase.sign_in_provider == 'password' && auth.uid == $uid && root.child('rooms').child($conversationId).child('access').child('members').child(auth.uid).val() == true",
+            ".validate": "newData.hasChildren(['active','at']) && newData.child('active').isBoolean() && newData.child('at').isNumber() && newData.child('at').val() <= now + 1000"
+          }
+        },
+        "call": {
+          "participants": {
+            ".read": "auth != null && auth.token.firebase.sign_in_provider == 'password' && root.child('rooms').child($conversationId).child('access').child('members').child(auth.uid).val() == true",
+            "$uid": { ".write": "auth != null && auth.token.firebase.sign_in_provider == 'password' && auth.uid == $uid && !newData.exists()" }
+          },
+          "signals": {
+            "$uid": {
+              ".read": "auth != null && auth.token.firebase.sign_in_provider == 'password' && auth.uid == $uid && root.child('rooms').child($conversationId).child('access').child('members').child(auth.uid).val() == true",
+              ".write": "auth != null && auth.token.firebase.sign_in_provider == 'password' && auth.uid == $uid && !newData.exists()"
+            }
+          }
+        }
+      }
+    },
+    "presence": {
+      ".read": "auth != null && auth.token.firebase.sign_in_provider == 'password'",
+      "$uid": {
+        "$deviceId": {
+          ".write": "auth != null && auth.token.firebase.sign_in_provider == 'password' && auth.uid == $uid",
+          ".validate": "newData.hasChildren(['online','at']) && newData.child('online').isBoolean() && newData.child('at').isNumber() && newData.child('at').val() <= now + 1000"
+        }
+      }
+    }
+  }
+}
