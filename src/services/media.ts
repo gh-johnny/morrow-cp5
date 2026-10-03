@@ -29,7 +29,10 @@ export async function uploadFile(file: SelectedFile, purpose: 'profile' | 'group
   if (!token) throw new Error('Sua sessão precisa ser autenticada.');
   const body = new FormData();
   if (Platform.OS === 'web') body.append('file', await (await fetch(file.uri)).blob(), file.name);
-  else body.append('file', { uri: file.uri, name: file.name, type: file.mimeType } as unknown as Blob);
+  else {
+    const { File } = await import('expo-file-system');
+    body.append('file', new Blob([await new File(file.uri).arrayBuffer()], { type: file.mimeType }), file.name);
+  }
   body.append('purpose', purpose);
   if (conversationId) body.append('conversationId', conversationId);
   const response = await fetch(`${apiBase}/media`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body, signal: AbortSignal.timeout(55_000) });
