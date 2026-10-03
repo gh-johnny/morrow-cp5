@@ -57,6 +57,9 @@ Space Grotesk, Manrope and an original geometric companion, Kite.
 
 ## Status
 
-Implementation in progress. No integration is considered complete merely because its
-dependency, screen or mock exists. Record actual checks and any external dependency in
-the delivery documentation.
+Implementation and verification completed for the academic POC. All assignment requirements
+and sixteen additions are implemented. Public Firebase/API integration, security rules, three
+browser flows and native Android checks are recorded in [delivery documentation](DELIVERY.md)
+and [native evidence](evidence/native-verification.json). The Android APK and iOS simulator
+archive are published in v1.0.0. iOS runtime/APNs remain explicitly outside verified coverage
+because Apple Developer/iPhone are unavailable; TURN is optional and not provisioned.

@@ -1,0 +1,106 @@
+{
+  "checkedAt": "2026-10-03T08:50:29.543Z",
+  "api": "https://morrow-cp5.vercel.app/api",
+  "firebaseProject": "morrow-cp5-final-555199",
+  "deliveryArtifacts": {
+    "android": {
+      "buildId": "787246c2-cc6e-4fda-8dde-63b120727ac7",
+      "file": "morrow-android.apk",
+      "size": 211396226,
+      "sha256": "23970f18d254429b5f951a0fadf4cb4b5d2d087f45e680878ac6ed88c8eb4cc4",
+      "sourceCommit": "5b25b8084a92f05b72d0e217bb948ec9de66ccda",
+      "release": "https://github.com/gh-johnny/morrow-cp5/releases/download/v1.0.0/morrow-android.apk"
+    },
+    "ios": {
+      "buildId": "fce234c9-5e84-4136-8c32-b35806afa816",
+      "file": "morrow-ios-simulator.tar.gz",
+      "size": 46451301,
+      "sha256": "bac3d278b01eafad79798a061e58484d615d64528c169c27221e52eb09ee2407",
+      "sourceCommit": "5b25b8084a92f05b72d0e217bb948ec9de66ccda",
+      "release": "https://github.com/gh-johnny/morrow-cp5/releases/download/v1.0.0/morrow-ios-simulator.tar.gz"
+    }
+  },
+  "android": {
+    "platform": "Google Play emulator API 35",
+    "recording": {
+      "checkedAt": "2026-10-03T08:37:09.046Z",
+      "api": "https://morrow-cp5.vercel.app/api",
+      "platform": "Android emulator API 35",
+      "uploaded": true,
+      "coldRestartReplay": true,
+      "sameMessageId": true,
+      "persistedMessageCount": 1,
+      "recordedMimeType": "audio/mpeg",
+      "recordedSize": 621755,
+      "recordedDuration": 50.613,
+      "messageId": "m_02b3f148e20e4dfb90967f80b84ad82e"
+    },
+    "playback": {
+      "checkedAt": "2026-10-03T08:40:53.732Z",
+      "playing": true,
+      "currentTime": 1,
+      "duration": 50,
+      "speed": 2,
+      "nativeAudioPlayer": true,
+      "verification": "ADB screenshot visually inspected: Pausar áudio, 2× and 1 / 50s visible."
+    },
+    "outbox": {
+      "checkedAt": "2026-10-03T08:06:00.240Z",
+      "platform": "Android emulator API 35",
+      "coldRestart": true,
+      "sameMessageId": true,
+      "retainedAudioFiles": 1,
+      "blackoutRestored": true
+    },
+    "push": {
+      "background": {
+        "checkedAt": "2026-10-03T08:47:42.177Z",
+        "platform": "Android emulator API 35",
+        "expoAccepted": 1,
+        "fcmConfirmed": 1,
+        "providerErrors": 0,
+        "applicationOpened": true
+      },
+      "foreground": {
+        "checkedAt": "2026-10-03T08:42:54.330Z",
+        "platform": "Android emulator API 35",
+        "expoAccepted": 1,
+        "applicationReceived": true
+      },
+      "tokenRegistration": {
+        "checkedAt": "2026-10-03T08:10:18.367Z",
+        "platform": "Android emulator API 35",
+        "idleObservedMs": 251186,
+        "repeatedRegistration": false,
+        "enabledAndroidDevices": 1
+      }
+    },
+    "webRtc": {
+      "checkedAt": "2026-10-03T08:18:07.690Z",
+      "api": "https://morrow-cp5.vercel.app/api",
+      "browser": "Chromium",
+      "android": "Google Play emulator API 35",
+      "connected": true,
+      "inboundVideoBytes": 129343
+    },
+    "biometric": {
+      "checkedAt": "2026-10-03T06:53:48.325Z",
+      "platform": "Android emulator API 35 / virtual fingerprint",
+      "nativePrompt": true,
+      "unlock": true,
+      "backgroundRelocks": true,
+      "coldStartRelocks": true,
+      "fingerprintAccepts": 3
+    }
+  },
+  "ios": {
+    "bundle": "br.com.morrow.cp5",
+    "version": "1.0.0",
+    "camera": true,
+    "microphone": true,
+    "faceId": true,
+    "runtimeChecked": false,
+    "pushChecked": false,
+    "reason": "No Apple Developer account or iPhone available; simulator build and configuration documented."
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "checkedAt": "2026-10-03T08:11:46.453Z",
+  "api": "https://morrow-cp5.vercel.app/api",
+  "platform": "Android",
+  "checks": [
+    {
+      "check": "all_group_messages",
+      "status": "completed",
+      "accepted": 1,
+      "rejected": 0
+    },
+    {
+      "check": "mentioned_members",
+      "status": "completed",
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "check": "direct_messages_only",
+      "status": "completed",
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "check": "disabled",
+      "status": "completed",
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "check": "explicit mention reaches the active Android device",
+      "status": "completed",
+      "accepted": 1,
+      "rejected": 0
+    },
+    {
+      "check": "personal conversation mute",
+      "status": "completed",
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "check": "quiet hours defer delivery",
+      "status": "deferred",
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "check": "removed member is excluded",
+      "status": "completed",
+      "accepted": 0,
+      "rejected": 0
+    },
+    {
+      "check": "direct message accepted by Expo and sender excluded",
+      "status": "completed",
+      "accepted": 1,
+      "rejected": 0
+    }
+  ],
+  "delivery": {
+    "background": {
+      "checkedAt": "2026-10-03T08:47:42.177Z",
+      "platform": "Android emulator API 35",
+      "expoAccepted": 1,
+      "fcmConfirmed": 1,
+      "providerErrors": 0,
+      "applicationOpened": true
+    },
+    "foreground": {
+      "checkedAt": "2026-10-03T08:42:54.330Z",
+      "platform": "Android emulator API 35",
+      "expoAccepted": 1,
+      "applicationReceived": true
+    }
+  }
+}

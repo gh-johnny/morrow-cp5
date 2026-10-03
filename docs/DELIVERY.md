@@ -25,6 +25,7 @@ Esta referência descreve a POC para professores e integrantes, verificada contr
 | Perfil privado | API exige conversa comum para perfil completo; descoberta mostra nome/foto; `server/src/users.ts` |
 | Direta única, dois membros | ID determinístico do par, transação e rejeição de si mesmo; `server/src/conversations.ts` |
 | Grupos, dono, imagem e capacidade | Capacidade inteira inclui dono; transação para alterações/entradas; nunca abaixo da ocupação |
+| Foto → perfil/integrantes | Foto no chat abre perfil direto ou lista completa do grupo; seleção abre perfil autorizado; `src/app/chat/[id].tsx` |
 | Remoção de integrante | ACL RTDB versionada a partir de metadados; revoga leitura/envio/push |
 | Tempo real e persistência | RTDB para mensagens, listeners com cleanup; `src/hooks/data.ts` |
 | Firestore e RTDB | Firestore: perfis/metadados/configurações; RTDB: mensagens/presença/canvas/foco/sinalização |
@@ -74,11 +75,17 @@ Aceite Expo, confirmação FCM/APNs, recebimento no app e abertura são etapas d
 
 A proteção por dispositivos cobre **novos textos de conversas diretas**. Anexos, chamadas, metadados e mensagens antigas ficam fora. Kite e anexos são bloqueados na conversa protegida. Uma chave nova não recupera histórico de chave revogada. Confirme fingerprints com a outra pessoa por canal conhecido; o QR não cria confiança automaticamente.
 
-Gemini recebe apenas mensagens autorizadas sem essa proteção. Há fallback de modelo, validação de JSON e filtragem de citações; tarefas exigem confirmação. Transcrições podem conter erros, e o áudio original permanece disponível. Chave de IA fica no servidor.
+Gemini recebe apenas mensagens autorizadas sem essa proteção. O modelo principal é `gemini-3.5-flash-lite`, com `gemini-3.8-flash` como alternativa; há prazo de resposta, validação de JSON e filtragem de citações. Tarefas exigem confirmação. Transcrições podem conter erros, e o áudio original permanece disponível. Chave de IA fica no servidor.
 
 Chamadas usam STUN/conexão direta. `TURN_URLS` e `TURN_SHARED_SECRET` habilitam credenciais TURN temporárias no servidor. **O ambiente público ainda não tem TURN**; redes restritivas podem impedir chamadas, condição informada na interface.
 
 Upload: até **3 MB**, tipos permitidos no servidor. Gravação: até **120 segundos**. Conta: até **16 identidades ativas de dispositivo**. Há limites por usuário e de IA. São limites da POC acadêmica.
+
+O Firebase permanece no plano gratuito. Firestore oferece 50.000 leituras e 20.000 escritas por dia, com renovação perto da meia-noite do Pacífico. Esse limite pode interromper consultas até a renovação. A API informa indisponibilidade temporária; o aplicativo preserva mensagens na fila. Requisições da mesma foto são compartilhadas por identidade para reduzir leituras repetidas. [Cotas oficiais](https://firebase.google.com/docs/firestore/quotas).
+
+No Expo 57, consultar o token Android também emite o evento de token. O listener reutiliza o token recebido ao registrar no Expo, evitando uma nova consulta que produziria um ciclo. O teste de regressão simula esse eco, uma rotação real e a remoção do listener. O ambiente final usa um Firebase novo após a cota do ambiente de validação anterior ter sido consumida por esse problema, já corrigido.
+
+Upload nativo usa `File` de `expo-file-system` diretamente no `FormData` e `expo/fetch`, conforme a [documentação do Expo](https://docs.expo.dev/versions/v57.0.0/sdk/filesystem/). O teste de regressão usa o conversor multipart do SDK e rejeita a construção de Blob de ArrayBuffer incompatível com React Native.
 
 ## Desenvolvimento e publicação
 
@@ -94,13 +101,43 @@ npm run web
 
 No Android Emulator a API local usa `http://10.0.2.2:4000/api`; em aparelho físico use HTTPS acessível. Perfis EAS usam a API pública. `npm run build:apk` gera preview Android; `npm run build:ios` gera iOS simulator. WebRTC e SQLCipher exigem build nativo, não Expo Go.
 
-Firebase público acadêmico: **morrow-cp5-555199**. Para outro projeto, ative apenas E-mail/senha, crie Firestore/RTDB, registre clientes web/Android e substitua configurações públicas. A conta Admin da API precisa de Firestore/RTDB e leitura/validação Auth; a credencial FCM dedicada usa `roles/firebasecloudmessaging.admin`.
+Firebase público acadêmico: **morrow-cp5-final-555199**. Para outro projeto, ative apenas E-mail/senha, crie Firestore/RTDB, registre clientes web/Android e substitua configurações públicas. A conta Admin da API precisa de Firestore/RTDB e leitura/validação Auth; a credencial FCM dedicada usa `roles/firebasecloudmessaging.admin`.
 
 ```bash
 npx firebase-tools@15 deploy --only firestore:rules,firestore:indexes,database --project YOUR_PROJECT
 ```
 
 `vercel.json` publica `api/index.ts` e export estático Expo. Configure variáveis de `server/.env.example` no host; jamais no bundle cliente. Não usa Cloud Functions.
+
+Na Vercel: conecte um **Blob privado** e configure `BLOB_READ_WRITE_TOKEN`; `PUBLIC_API_URL` deve apontar para a API HTTPS publicada e `WEB_ORIGINS`, para os clientes autorizados. Publique com `npx vercel deploy --prod`. Mantenha `FIREBASE_PRIVATE_KEY` e demais segredos somente nas variáveis do servidor. O Admin usa transporte REST para chamadas curtas; leituras em tempo real do aplicativo continuam nos SDKs cliente.
+
+## Referência da API
+
+Base pública: `https://morrow-cp5.vercel.app/api`. Rotas de usuário exigem Firebase ID token de E-mail/senha. Mutações colaborativas passam pela API; leituras em tempo real usam listeners Firestore/RTDB protegidos pelas regras.
+
+| Método e caminho | Comportamento |
+| --- | --- |
+| `GET /health` | Consulta Firestore e informa disponibilidade/configuração; não comprova entrega de push ou funcionamento de IA |
+| `GET /users`; `GET /users/me`; `GET /users/:uid`; `PUT /users/me` | Descoberta, perfil próprio/comum e atualização com foto enviada |
+| `GET/PUT /users/me/preferences`; `GET/POST /users/me/devices` | Preferências e registro privado de identidade/token |
+| `DELETE /users/me/devices/:id`; `POST /users/me/devices/:id/logout` | Revogação ou remoção de token no logout |
+| `GET /conversations`; `GET /conversations/:id`; `POST /conversations/direct` | Listagem, autorização e direta canônica |
+| `POST /conversations/groups`; `PATCH /conversations/:id` | Grupo, capacidade, integrantes, foto e política |
+| `GET/POST /conversations/:id/messages`; `PATCH /conversations/:id/messages/:messageId` | Histórico, persistência idempotente e ações autorizadas |
+| `POST /conversations/:id/read`; `POST /conversations/:id/threads/:threadId/subscribe` | Leitura e acompanhamento de tópicos |
+| `POST /media`; `GET /media/:id/link`; `GET /media/:id` | Upload, link temporário e bytes com assinatura/autorização |
+| `POST /notifications`; `POST /notifications/ack`; `GET /conversations/:id/notifications` | Envio, acknowledgements e cem eventos mais recentes do observatório |
+| `POST /conversations/:id/tasks`; `PATCH /conversations/:id/tasks/:taskId` | Tarefa, responsável, prazo, checklist e status |
+| `POST /conversations/:id/polls`; `POST /polls/:pollId/vote`; `POST /polls/:pollId/close` | Votação; os dois últimos caminhos também ficam sob `/conversations/:id` |
+| `POST /conversations/:id/memories`; `DELETE /conversations/:id/memories/:memoryId` | Memória com fontes e relações |
+| `POST /conversations/:id/board`; `POST/PATCH /conversations/:id/focus` | Atualização Yjs e ciclo de foco/checkpoint |
+| `GET /conversations/:id/call/config`; `POST /call/join`, `/call/leave`, `/call/signal` | Configuração e sinalização; todos sob a conversa |
+| `POST /conversations/:id/ai/ask`; `POST /conversations/:id/ai/transcribe` | Resposta com fontes e transcrição de mídia autorizada |
+| `POST /conversations/:id/encryption`; `GET /conversations/:id/devices` | Modo de texto protegido e chaves públicas dos participantes |
+| `POST /invitations`; `GET/DELETE /invitations/:token`; `POST /invitations/:token/join`; `POST /conversations/:id/join-requests/:uid` | Convite, entrada e decisão do proprietário |
+| `POST /jobs/run` | Worker exclusivo com bearer `CRON_SECRET`; cem eventos recentes por execução para receipts |
+
+Disponibilidade: `curl -f https://morrow-cp5.vercel.app/api/health`. Principais respostas: 400 dados inválidos; 401 sessão; 403 acesso; 404 recurso; 409 capacidade/estado; 429 frequência/cota de IA; 503 cota/configuração temporariamente indisponível. Validações e contratos ficam em `shared/contracts.ts` e `server/src/`.
 
 `POST /api/jobs/run` exige `Authorization: Bearer CRON_SECRET`. O workflow `.github/workflows/notification-jobs.yml` retoma eventos e consulta receipts a cada cinco minutos. Configure GitHub Actions **MORROW_CRON_SECRET** com o mesmo segredo do servidor. A API rejeita execução pública não autenticada.
 
@@ -138,15 +175,17 @@ npx expo-doctor
 Integração real é opt-in: `.local/fixtures.json` contém array privado de contas QA com email/password; nunca versione. Prepare contas em seu ambiente. O smoke gera `.local/scenario.json`; E2E e verificação de áudio usam esse cenário. Não altere backend/proteção da conversa durante E2E.
 
 ```bash
-TEST_API_URL=https://morrow-cp5.vercel.app/api npx tsx scripts/smoke-cloud.ts
-npm run test:e2e
+TEST_API_URL=https://morrow-cp5.vercel.app/api npx tsx --env-file=server/.env scripts/smoke-cloud.ts
+E2E_BASE_URL=https://morrow-cp5.vercel.app E2E_API_URL=https://morrow-cp5.vercel.app/api npm run test:e2e
 # verify-ai também exige .local/speech.mp3 com áudio falado de teste.
 TEST_API_URL=https://morrow-cp5.vercel.app/api npx tsx scripts/verify-ai.ts
 ```
 
-Verificados: domínio/NaCl; seis cenários de regras; API pública com Auth real, disputa pela última vaga, isolamento/remoção, replay, tarefas/enquetes/memória/canvas e IA; navegador com Blackout/reabertura, colaboração/foco, criptografia e transporte WebRTC real. O APK compilou. A validação nativa de push está em andamento.
+Verificados: domínio/NaCl; seis cenários de regras; API pública com Auth real, disputa pela última vaga, isolamento/remoção, replay, tarefas/enquetes/memória/canvas e IA; navegador com Blackout/reabertura, colaboração/foco, criptografia e transporte WebRTC real. Android Emulator API 35 com Google Play Services: gravação e upload de áudio, fila SQLCipher preservada no reinício com o mesmo ID, replay único, reprodução a 2×, push FCM com abertura/recebimento, registro de token estável, chamada Android ↔ Chromium com bytes RTP recebidos e biometria virtual. O binário iOS de simulador compilou e contém as permissões; runtime/APNs dependem do ambiente Apple indisponível. [Resultados nativos](evidence/native-verification.json).
 
-`expo-doctor`: 20/21; o aviso restante é a classificação WebRTC/New Architecture no React Native Directory. Compilação Android passou; isso não substitui runtime.
+`expo-doctor`: 20/21; o aviso restante é a classificação WebRTC/New Architecture no React Native Directory. A validação Android inclui vídeo WebRTC entre Android e Chromium, além dos testes nativos documentados.
+
+Release **v1.0.0**: [APK](https://github.com/gh-johnny/morrow-cp5/releases/download/v1.0.0/morrow-android.apk), [iOS simulator](https://github.com/gh-johnny/morrow-cp5/releases/download/v1.0.0/morrow-ios-simulator.tar.gz) e [SHA256SUMS](https://github.com/gh-johnny/morrow-cp5/releases/download/v1.0.0/SHA256SUMS.txt). CI passou com 13 testes unitários e seis cenários de regras; os três fluxos E2E foram verificados na API/interface publicadas.
 
 ## Evidências e apresentação
 
@@ -158,7 +197,9 @@ Imagens do app executado, capturadas com Playwright/Chromium em 2026-10-03:
 - [WebRTC](evidence/webrtc-desktop.png) — chamada entre dois navegadores.
 - [IA](evidence/ai-verification.json) — citações e transcrição reais, com data/API registrada.
 
-Capturas nativas com ADB, Android API 35, em 2026-10-03: [início Android](evidence/android-home.png) e [canvas Android](evidence/android-canvas.png). Login e canvas usam Firebase/API reais. A captura de push será vinculada após o APK corrigido.
+Capturas nativas com ADB, Android Emulator API 35 com Google Play Services, em 2026-10-03: [início Android](evidence/android-home.png), [canvas Android](evidence/android-canvas.png) e [notificações recebidas](evidence/android-push.png). Login, canvas e push usam Firebase/API reais. As três notificações correspondem à mensagem geral, menção explícita e conversa direta verificadas em [políticas push](evidence/push-policies.json).
+
+Evidências adicionais: [abertura por push](evidence/android-push-open.png), [áudio em reprodução](evidence/android-audio.png), [fila após reinício](evidence/android-outbox.png), [chamada nativa](evidence/android-call.png) e [bloqueio biométrico](evidence/android-biometric.png). Vídeo de teste do emulador/Chromium comprova transporte entre clientes; o áudio gravado no emulador valida captura/arquivo/reprodução. A entrada falada sintética da prova de IA é transcrita pelo Gemini, separadamente.
 
 Auditoria de dependências: npm audit registrou 37 avisos no cliente/tooling (25 high, 12 moderate) e 8 moderate no servidor; nenhuma critical. As recomendações incluem downgrades incompatíveis com SDK 57. Não foi aplicado audit fix --force; esses avisos permanecem como limite conhecido da POC.
 
