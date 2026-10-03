@@ -76,7 +76,7 @@ app.post('/api/notifications/ack', async (request, response) => {
 });
 app.get('/api/conversations/:id/notifications', async (request, response) => {
   const conversation = await requireMember(parseId(request.params.id), userOf(request).uid);
-  const docs = await db.collection('notificationEvents').where('conversationId', '==', conversation.id).limit(100).get();
+  const docs = await db.collection('notificationEvents').where('conversationId', '==', conversation.id).orderBy('createdAt', 'desc').limit(100).get();
   response.json(docs.docs.map((doc) => {
     const delivery = z.record(z.string(), z.object({ state: z.string() }).passthrough()).parse(doc.data().delivery ?? {});
     const values = Object.values(delivery);

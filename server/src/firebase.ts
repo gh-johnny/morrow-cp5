@@ -15,5 +15,6 @@ const app = getApps()[0] ?? initializeApp({
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const realtime = getDatabase(app);
-db.settings({ ignoreUndefinedProperties: true });
+// Keep short serverless requests on HTTP/1.1 instead of a persistent gRPC channel.
+db.settings({ ignoreUndefinedProperties: true, preferRest: !emulator });
 export async function closeFirebase() { await db.terminate(); realtime.goOffline(); await deleteApp(app); }

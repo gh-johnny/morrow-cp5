@@ -12,7 +12,9 @@ const transcriptionOutputSchema = z.object({ transcript: z.string(), segments: z
 const transcriptionSchema = transcriptionOutputSchema.extend({ transcript: z.string().max(30_000), segments: transcriptionOutputSchema.shape.segments.max(1000) });
 async function generate<T>(prompt: string, schema: z.ZodType<T>, audio?: { bytes: Buffer; mimeType: string }): Promise<T> {
   if (!process.env.GEMINI_API_KEY) throw new ApiError(503, 'O copiloto precisa de uma chave de IA configurada no servidor.', 'AI_NOT_CONFIGURED');
-  const models = [...new Set([process.env.GEMINI_MODEL || 'gemini-3.8-flash', process.env.GEMINI_FALLBACK_MODEL || 'gemini-3.5-flash-lite'])];
+  const primary = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
+  const fallback = process.env.GEMINI_FALLBACK_MODEL || 'gemini-3.8-flash';
+  const models = [...new Set([primary, fallback])];
   let response: Response | undefined;
   const deadline = Date.now() + 45_000;
   for (const model of models) {

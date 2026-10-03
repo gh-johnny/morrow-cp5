@@ -124,7 +124,7 @@ export async function runNotificationJobs(): Promise<{ processed: number; receip
   const deadline = Date.now() + 45_000; let processed = 0;
   const pending = await db.collection('notificationEvents').where('nextAttemptAt', '<=', Date.now()).limit(40).get();
   for (const doc of pending.docs) { if (Date.now() + 5000 >= deadline) break; await processEvent(doc.id, deadline - 3000); processed++; }
-  const events = await db.collection('notificationEvents').where('createdAt', '>', Date.now() - 86_400_000).limit(100).get();
+  const events = await db.collection('notificationEvents').where('createdAt', '>', Date.now() - 86_400_000).orderBy('createdAt', 'desc').limit(100).get();
   let receipts = 0;
   for (const doc of events.docs) {
     if (Date.now() + 5000 >= deadline) break;

@@ -20,6 +20,10 @@ test('real sessions, realtime chat, durable Blackout recovery and threaded repli
   await Promise.all([login(first, 0), login(second, 1)]);
   await first.screenshot({ path: 'docs/evidence/conversations-desktop.png', fullPage: true });
   await Promise.all([first.goto(`/chat/${scenario.directId}`), second.goto(`/chat/${scenario.directId}`)]);
+  await first.getByRole('button', { name: `Perfil de ${accounts[1].name}`, exact: true }).first().click();
+  await expect(first.getByText(accounts[1].name, { exact: true })).toBeVisible();
+  await expect(first.getByText(accounts[1].email, { exact: true })).toBeVisible();
+  await first.goto(`/chat/${scenario.directId}`);
   const unique = `Continuamos juntos ${Date.now()}`; await first.getByRole('textbox', { name: 'Mensagem', exact: true }).fill(unique); await first.getByRole('button', { name: 'Enviar', exact: true }).click(); await expect(second.getByText(unique, { exact: true })).toBeVisible();
   await first.goto('/sync'); await first.getByRole('button', { name: 'Ativar Blackout', exact: true }).click(); await first.goto(`/chat/${scenario.directId}`);
   const queued = `Sobrevive ao reinício ${Date.now()}`; await first.getByRole('textbox', { name: 'Mensagem', exact: true }).fill(queued); await first.getByRole('button', { name: 'Enviar', exact: true }).click(); await expect(first.getByText(queued, { exact: true })).toBeVisible();
@@ -41,6 +45,12 @@ test('tasks, live voting, canvas merging, focus clock and encrypted text across 
   await second.getByRole('button', { name: 'Caminho UI A', exact: true }).first().click(); await expect(first.getByText('1 voto(s)', { exact: true }).first()).toBeVisible();
   await Promise.all([first.goto(`/board/${scenario.groupId}`), second.goto(`/board/${scenario.groupId}`)]); await first.getByRole('button', { name: 'Nova nota', exact: true }).click(); const note = `Nota compartilhada ${Date.now()}`; await first.getByLabel('Texto da nota').last().fill(note); await expect(second.getByLabel('Texto da nota').last()).toHaveValue(note);
   await expect(first.getByText(`${accounts[1].name} no canvas`, { exact: true })).toBeVisible();
+  await first.goto(`/chat/${scenario.groupId}`);
+  await first.getByRole('button', { name: 'Ver integrantes do grupo', exact: true }).click();
+  await expect(first.getByText('Integrantes do grupo', { exact: true })).toBeVisible();
+  await first.getByRole('button', { name: `Abrir perfil de ${accounts[1].name}`, exact: true }).click();
+  await expect(first.getByText(accounts[1].email, { exact: true })).toBeVisible();
+  await first.goto(`/board/${scenario.groupId}`);
   await first.screenshot({ path: 'docs/evidence/canvas-desktop.png', fullPage: true });
   await first.goto(`/focus/${scenario.groupId}`); await first.getByLabel('Objetivo compartilhado').fill(`Concluir UI ${Date.now()}`); await first.getByLabel('Duração em minutos (1 a 120)').fill('2'); await first.getByRole('button', { name: 'Começar um ciclo juntos', exact: true }).click(); await expect(first.getByRole('button', { name: 'Pausar', exact: true })).toBeVisible(); await first.getByRole('button', { name: 'Pausar', exact: true }).click(); await expect(first.getByRole('button', { name: 'Retomar', exact: true })).toBeVisible();
   await second.goto(`/focus/${scenario.groupId}`); await expect(second.getByText('Respirando um pouco', { exact: true })).toBeVisible(); await second.getByRole('button', { name: 'Registrar meu checkpoint', exact: true }).click(); await first.getByRole('button', { name: 'Concluir ciclo', exact: true }).click();

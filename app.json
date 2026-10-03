@@ -90,7 +90,7 @@
         {
           "photosPermission": "Selecione sua foto e imagens para compartilhar.",
           "cameraPermission": "Selecione uma imagem para o seu espaço.",
-          "microphonePermission": false
+          "microphonePermission": "Grave mensagens e participe de chamadas com sua equipe."
         }
       ],
       [

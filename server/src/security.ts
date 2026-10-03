@@ -58,7 +58,14 @@ export function handleError(error: unknown, request: Request, response: Response
   if (response.headersSent) { next(error); return; }
   if (error instanceof z.ZodError) { response.status(400).json({ error: 'Confira os dados informados.', code: 'VALIDATION', details: error.issues.map((issue) => issue.message) }); return; }
   if (error instanceof ApiError) { response.status(error.status).json({ error: error.message, code: error.code }); return; }
+  const resourceError = z.object({ code: z.union([z.string(), z.number()]) }).safeParse(error);
+  if (resourceError.success && [8, 'resource-exhausted', 'RESOURCE_EXHAUSTED'].includes(resourceError.data.code)) {
+    response.setHeader('Retry-After', '60');
+    response.status(503).json({ error: 'O serviço atingiu sua cota temporária. Sua mensagem permanece na fila; tente novamente mais tarde.', code: 'SERVICE_QUOTA' });
+    return;
+  }
   console.error(JSON.stringify({ event: 'api.error', method: request.method, path: request.path,
-    errorType: error instanceof Error ? error.name : 'UnknownError' }));
+    errorType: error instanceof Error ? error.name : 'UnknownError',
+    errorCode: z.object({ code: z.union([z.string(), z.number()]) }).safeParse(error).data?.code }));
   response.status(500).json({ error: 'Não foi possível concluir agora. Tente novamente.', code: 'SERVER_ERROR' });
 }

@@ -37,8 +37,19 @@ export async function uploadFile(file: SelectedFile, purpose: 'profile' | 'group
   if (!response.ok) throw new RequestError(z.object({ error: z.string() }).parse(result).error, response.status, 'MEDIA_UPLOAD');
   return { ...attachmentSchema.parse(result), ...(file.duration ? { duration: file.duration } : {}) };
 }
+const signedLinks = new Map<string, { expires: number; promise: Promise<string> }>();
 export async function signedMediaUrl(url: string): Promise<string> {
   const id = url.match(/\/media\/([A-Za-z0-9_-]+)$/)?.[1];
   if (!id) return url;
-  return (await api(`/media/${id}/link`, z.object({ url: z.string() }))).url;
+  const key = `${auth.currentUser?.uid ?? ''}/${id}`;
+  const now = Date.now();
+  for (const [cachedKey, entry] of signedLinks) if (entry.expires <= now) signedLinks.delete(cachedKey);
+  const cached = signedLinks.get(key);
+  if (cached) return cached.promise;
+  // Repeated author avatars share one request. Keep enough margin for the
+  // component's four-minute refresh before the five-minute link expires.
+  const promise = api(`/media/${id}/link`, z.object({ url: z.string() })).then((result) => result.url);
+  signedLinks.set(key, { expires: now + 30_000, promise });
+  void promise.catch(() => { if (signedLinks.get(key)?.promise === promise) signedLinks.delete(key); });
+  return promise;
 }

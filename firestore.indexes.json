@@ -1,1 +1,11 @@
-{ "indexes": [], "fieldOverrides": [] }
+{
+  "indexes": [{
+    "collectionGroup": "notificationEvents",
+    "queryScope": "COLLECTION",
+    "fields": [
+      { "fieldPath": "conversationId", "order": "ASCENDING" },
+      { "fieldPath": "createdAt", "order": "DESCENDING" }
+    ]
+  }],
+  "fieldOverrides": []
+}
