@@ -21,7 +21,7 @@ test('real sessions, realtime chat, durable Blackout recovery and threaded repli
   await first.screenshot({ path: 'docs/evidence/conversations-desktop.png', fullPage: true });
   await Promise.all([first.goto(`/chat/${scenario.directId}`), second.goto(`/chat/${scenario.directId}`)]);
   await first.getByRole('button', { name: `Perfil de ${accounts[1].name}`, exact: true }).first().click();
-  await expect(first.getByText(accounts[1].name, { exact: true })).toBeVisible();
+  await expect(first).toHaveURL(new RegExp(`/profile/${accounts[1].uid}$`));
   await expect(first.getByText(accounts[1].email, { exact: true })).toBeVisible();
   await first.goto(`/chat/${scenario.directId}`);
   const unique = `Continuamos juntos ${Date.now()}`; await first.getByRole('textbox', { name: 'Mensagem', exact: true }).fill(unique); await first.getByRole('button', { name: 'Enviar', exact: true }).click(); await expect(second.getByText(unique, { exact: true })).toBeVisible();
