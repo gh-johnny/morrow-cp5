@@ -43,7 +43,8 @@ test('tasks, live voting, canvas merging, focus clock and encrypted text across 
   await first.getByLabel('Pergunta da votação', { exact: true }).fill(question); await first.getByLabel('Opções (uma por linha, 2 a 8)', { exact: true }).fill('Caminho UI A\nCaminho UI B'); await first.getByRole('button', { name: 'Abrir votação', exact: true }).click();
   await second.getByRole('button', { name: 'Votações', exact: true }).click(); await expect(second.getByText(question, { exact: true })).toBeVisible();
   await second.getByRole('button', { name: 'Caminho UI A', exact: true }).first().click(); await expect(first.getByText('1 voto(s)', { exact: true }).first()).toBeVisible();
-  await Promise.all([first.goto(`/board/${scenario.groupId}`), second.goto(`/board/${scenario.groupId}`)]); await first.getByRole('button', { name: 'Nova nota', exact: true }).click(); const note = `Nota compartilhada ${Date.now()}`; await first.getByLabel('Texto da nota').last().fill(note); await expect(second.getByLabel('Texto da nota').last()).toHaveValue(note);
+  await Promise.all([first.goto(`/board/${scenario.groupId}`), second.goto(`/board/${scenario.groupId}`)]); await first.getByRole('button', { name: 'Nova nota', exact: true }).click(); const note = `Nota compartilhada ${Date.now()}`; await first.getByLabel('Texto da nota').last().fill(note);
+  await expect.poll(() => second.getByLabel('Texto da nota').evaluateAll((fields) => fields.map((field) => (field as HTMLTextAreaElement).value))).toContain(note);
   await expect(first.getByText(`${accounts[1].name} no canvas`, { exact: true })).toBeVisible();
   await first.goto(`/chat/${scenario.groupId}`);
   await first.getByRole('button', { name: 'Ver integrantes do grupo', exact: true }).click();

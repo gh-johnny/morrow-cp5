@@ -31,11 +31,12 @@ export async function uploadFile(file: SelectedFile, purpose: 'profile' | 'group
   if (Platform.OS === 'web') body.append('file', await (await fetch(file.uri)).blob(), file.name);
   else {
     const { File } = await import('expo-file-system');
-    body.append('file', new Blob([await new File(file.uri).arrayBuffer()], { type: file.mimeType }), file.name);
+    body.append('file', new File(file.uri));
   }
   body.append('purpose', purpose);
   if (conversationId) body.append('conversationId', conversationId);
-  const response = await fetch(`${apiBase}/media`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body, signal: AbortSignal.timeout(55_000) });
+  const request = Platform.OS === 'web' ? fetch : (await import('expo/fetch')).fetch;
+  const response = await request(`${apiBase}/media`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body, signal: AbortSignal.timeout(55_000) });
   const result: unknown = await response.json();
   if (!response.ok) throw new RequestError(z.object({ error: z.string() }).parse(result).error, response.status, 'MEDIA_UPLOAD');
   return { ...attachmentSchema.parse(result), ...(file.duration ? { duration: file.duration } : {}) };

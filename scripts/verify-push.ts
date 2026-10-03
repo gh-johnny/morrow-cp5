@@ -24,7 +24,7 @@ assert.ok(devices.some((device) => device.platform === 'android' && device.enabl
 const previousPreferences = await call(1, '/users/me/preferences', preferenceSchema);
 const activePreferences = { ...previousPreferences, pushEnabled: true, quietEnabled: false, mutedConversationIds: [] };
 const form = new FormData();
-form.append('file', new Blob([Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64')], { type: 'image/png' }), 'push-qa.png');
+form.append('file', new Blob([await readFile('assets/brand/icon.png')], { type: 'image/png' }), 'push-qa.png');
 form.append('purpose', 'group');
 const uploaded = await fetch(`${base}/media`, { method: 'POST', headers: { Authorization: `Bearer ${tokens[0]}` }, body: form });
 assert.equal(uploaded.status, 201);
